@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Título da Página</title>
+</head>
+
+<body>
+
+    <h1>Olá, Mundo!</h1>
+    <!-- 1. O botão que abre o modal -->
+    <button onclick="meuModal.showModal()">Abrir Modal</button>
+
+    <!-- 2. O modal em si -->
+    <dialog id="meuModal">
+        <h2>Título do Modal</h2>
+        <p>Conteúdo do seu modal aqui.</p>
+
+        <!-- 3. Botão simples com formulário apenas para fechar nativamente -->
+        <form method="dialog">
+            <button>Fechar</button>
+        </form>
+    </dialog>
+
+</body>
+
+</html>

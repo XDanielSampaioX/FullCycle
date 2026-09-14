@@ -1,0 +1,81 @@
+services:
+  postgres:
+    build:
+      context: ./Biblioteca-Online-BD
+    restart: unless-stopped
+    env_file:
+      - ./Biblioteca-Online-BD/.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\"" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./Biblioteca-Online-Backend
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    env_file:
+      - ./Biblioteca-Online-BD/.env
+      - ./Biblioteca-Online-Backend/.env
+    volumes:
+      - ./Biblioteca-Online-Backend:/app
+      - backend_maven_cache:/root/.m2
+    command: mvn spring-boot:run
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ./Biblioteca-Online-Frontend
+    restart: unless-stopped
+    env_file:
+      - ./Biblioteca-Online-Frontend/.env
+    volumes:
+      - ./Biblioteca-Online-Frontend:/app
+      - frontend_node_modules:/app/node_modules
+    command: npm run dev
+    environment:
+      INTERNAL_API_BASE_URL: "http://backend:8080"
+    depends_on:
+      backend:
+        condition: service_started
+    networks:
+      - app-network
+
+  nginx:
+    build:
+      context: ./Biblioteca-Online-Nginx
+    restart: unless-stopped
+    volumes:
+      - ./Biblioteca-Online-Nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      frontend:
+        condition: service_started
+      backend:
+        condition: service_started
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  backend_maven_cache:
+  frontend_node_modules:
+  postgres_data:

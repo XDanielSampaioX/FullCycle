@@ -33,12 +33,4 @@ public class LivroController {
     public GoogleBooksResponse.Item buscarPorId(@PathVariable("volumeId") String volumeId) {
         return googleBookService.buscarLivroPorId(volumeId);
     }
-
-    @ExceptionHandler(RestClientResponseException.class)
-    public ProblemDetail tratarErroGoogleBooks(RestClientResponseException exception) {
-        return ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_GATEWAY,
-                "Nao foi possivel consultar a Google Books API. Verifique a API Key configurada."
-        );
-    }
 }

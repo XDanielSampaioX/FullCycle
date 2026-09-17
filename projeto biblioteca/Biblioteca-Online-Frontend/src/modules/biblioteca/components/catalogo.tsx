@@ -7,6 +7,7 @@ import { Aviso, Campo } from "@/shared/components/ui";
 import { ConsultaLivros } from "../dto/livro";
 import { buscarLivros } from "../services/biblioteca-api";
 import { Capa } from "./capa";
+
 export function Catalogo() {
   const [consulta, setConsulta] = useState(() => new ConsultaLivros());
   const [error, setError] = useState("");

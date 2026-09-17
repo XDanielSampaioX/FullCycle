@@ -33,7 +33,8 @@ No Docker Compose existente, `INTERNAL_API_BASE_URL=http://backend:8080` já est
 - `src/modules/<modulo>/services`: chamadas dos endpoints do módulo.
 - `src/modules/<modulo>/components`: telas e componentes específicos.
 - `src/modules/autenticacao/session.ts`: armazenamento, leitura, notificações, início e encerramento da sessão.
-- `src/modules/autenticacao/hooks`: hooks próprios `useSessao` e `useConsulta`, para acompanhar a sessão e realizar consultas autenticadas com cancelamento e tratamento de 401.
+- `src/modules/autenticacao/context/auth-context.tsx`: `AuthProvider`, presente no layout principal, acompanha a sessão com `useSyncExternalStore` e disponibiliza sessão, início e encerramento pelo contexto.
+- `src/modules/autenticacao/hooks`: `useAuth` acessa o contexto e `useConsulta` realiza consultas autenticadas com cancelamento e tratamento de 401. Componentes e hooks consomem a autenticação por `useAuth`; o armazenamento continua em `session.ts`.
 - `src/modules/autenticacao/components`: formulário de login e proteção da navegação autenticada.
 - `src/shared`: transporte HTTP, componentes visuais e regras de campos reutilizáveis.
 

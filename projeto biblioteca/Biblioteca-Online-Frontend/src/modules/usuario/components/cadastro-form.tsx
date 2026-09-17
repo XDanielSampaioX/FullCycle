@@ -4,16 +4,21 @@ import Link from "next/link";
 import { Campo, Aviso } from "@/shared/components/ui";
 import { criarUsuario } from "../dto/usuario";
 import { cadastrarUsuario } from "../services/usuario-api";
+
 export function CadastroForm({ interno = false }: { interno?: boolean }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [busy, setBusy] = useState(false);
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
     const form = event.currentTarget;
+    
     setError("");
     setSuccess("");
     setBusy(true);
+
     try {
       const usuario = await cadastrarUsuario(criarUsuario(new FormData(form)));
       setSuccess(`${usuario.nome}, cadastro realizado com sucesso!`);

@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { ApiError } from "@/shared/http/api";
-import { encerrarSessao } from "../session";
-import { useSessao } from "./use-sessao";
+import { useAuth } from "./use-auth";
 
 export function useConsulta<T>(load: (token: string, signal: AbortSignal) => Promise<T>,) {
 
-  const session = useSessao();
+  const { session, encerrarSessao } = useAuth();
   const [attempt, setAttempt] = useState(0);
   const [result, setResult] = useState<{
     load: typeof load;
@@ -42,7 +41,7 @@ export function useConsulta<T>(load: (token: string, signal: AbortSignal) => Pro
           });
       });
     return () => controller.abort();
-  }, [session, load, attempt]);
+  }, [session, load, attempt, encerrarSessao]);
   const current =
     result?.load === load &&
       result.attempt === attempt &&

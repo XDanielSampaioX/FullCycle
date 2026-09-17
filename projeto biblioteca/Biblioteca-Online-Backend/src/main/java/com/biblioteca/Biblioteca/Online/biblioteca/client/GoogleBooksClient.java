@@ -1,12 +1,14 @@
 package com.biblioteca.Biblioteca.Online.biblioteca.client;
 
 import com.biblioteca.Biblioteca.Online.biblioteca.dto.GoogleBooksResponse;
+import com.biblioteca.Biblioteca.Online.biblioteca.exception.GoogleBooksApiException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriBuilder;
 
 import java.net.URI;
@@ -31,17 +33,27 @@ public class GoogleBooksClient {
     public GoogleBooksResponse buscarLivrosGratuitos(String termo,
                                                      Pageable pageable) {
 
-        return restClient.get()
-                .uri(uriBuilder -> montarUriBusca(uriBuilder, termo, pageable))
-                .retrieve()
-                .body(GoogleBooksResponse.class);
+        try {
+            return restClient.get()
+                    .uri(uriBuilder -> montarUriBusca(uriBuilder, termo, pageable))
+                    .retrieve()
+                    .body(GoogleBooksResponse.class);
+        } catch (RestClientException exception) {
+            throw new GoogleBooksApiException("Erro ao consultar a Google Books API", exception);
+        }
     }
 
+
     public GoogleBooksResponse.Item buscarLivroPorId(String volumeId) {
-        return restClient.get()
-                .uri(uriBuilder -> montarUriPorId(uriBuilder, volumeId))
-                .retrieve()
-                .body(GoogleBooksResponse.Item.class);
+
+        try {
+            return restClient.get()
+                    .uri(uriBuilder -> montarUriPorId(uriBuilder, volumeId))
+                    .retrieve()
+                    .body(GoogleBooksResponse.Item.class);
+        } catch (RestClientException exception) {
+            throw new GoogleBooksApiException("Erro ao consultar a Google Books API", exception);
+        }
     }
 
     private URI montarUriBusca(UriBuilder uriBuilder,

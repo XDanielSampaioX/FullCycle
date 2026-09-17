@@ -1,11 +1,14 @@
 "use client";
+
 import Link from "next/link";
 import { useConsulta } from "@/modules/autenticacao/hooks/use-consulta";
 import { ConsultaStatus } from "@/shared/components/consulta-status";
 import { Aviso } from "@/shared/components/ui";
 import { listarUsuarios } from "../services/usuario-api";
+
 export function Usuarios() {
   const query = useConsulta(listarUsuarios);
+  
   return (
     <>
       <div className="section-heading">

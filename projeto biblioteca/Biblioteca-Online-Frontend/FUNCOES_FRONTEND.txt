@@ -38,7 +38,8 @@ Detalhe: página /catalogo/[id] -> LivroDetalhe -> useConsulta -> buscarLivro
 
 Usuários: Usuarios -> useConsulta -> listarUsuarios -> api -> tabela.
 
-Sessão: useSessao informa o estado; AreaAutenticada controla o acesso visual
+Sessão: AuthProvider acompanha o armazenamento e useAuth acessa o contexto;
+AreaAutenticada controla o acesso visual
 e programa a expiração; encerrarSessao apaga a sessão. A autorização das
 requisições depende do backend.
 
@@ -49,6 +50,8 @@ Arquivo: src/app/layout.tsx
 Função: RootLayout({ children })
 - Recebe o conteúdo da rota e o coloca dentro de <html> e <body>.
 - Define o idioma da página como português brasileiro (pt-BR).
+- Envolve todas as páginas em AuthProvider para disponibilizar o contexto
+  de autenticação, inclusive no login e no cadastro público.
 - O arquivo importa o CSS global e exporta título e descrição da aplicação;
   metadata é um objeto de configuração, não uma função.
 - Retorna a estrutura HTML externa compartilhada pelas páginas.
@@ -219,24 +222,38 @@ Função: encerrarSessao()
 - A notificação faz os componentes reagirem ao logout.
 - Não chama um endpoint de revogação do token no backend.
 
-Arquivo: src/modules/autenticacao/hooks/use-sessao.ts
+Arquivo: src/modules/autenticacao/context/auth-context.tsx
 
-Este hook importa read e subscribe de session.ts. O armazenamento da sessão
-fica em session.ts, enquanto a integração com React fica nesta pasta hooks.
+Componente: AuthProvider({ children })
+- Importa read, subscribe, iniciarSessao e encerrarSessao de session.ts.
+- Usa useSyncExternalStore(subscribe, read, serverSnapshot) para acompanhar
+  o armazenamento. Quando publish chama os listeners, o React relê a sessão.
+- Disponibiliza { session, iniciarSessao, encerrarSessao } em AuthContext.
+- O callback de useMemo monta esse objeto e mantém sua referência enquanto
+  session não muda, evitando notificações de contexto por mera recriação.
+- Envolve children com AuthContext.Provider; é usado no layout principal.
+- Não duplica a sessão em useState. session.ts continua sendo a fonte dos dados.
+- AuthContext é o objeto de contexto criado por createContext, não uma função
+  própria. Seu valor padrão undefined identifica a ausência do provider.
 
 Função interna: serverSnapshot()
 - Retorna undefined para a leitura da sessão durante a renderização no servidor.
 - Representa a sessão ainda não obtida do armazenamento do navegador.
 
-Hook: useSessao()
-- Usa useSyncExternalStore com subscribe, read e serverSnapshot.
-- Entrega a sessão atual aos componentes e acompanha suas alterações.
-- O resultado pode ser undefined inicialmente, null sem sessão ou um objeto
-  com token e expiresAt quando há sessão.
+Arquivo: src/modules/autenticacao/hooks/use-auth.ts
+
+Hook: useAuth()
+- Lê AuthContext com useContext e retorna sessão e operações de autenticação.
+- Lança erro explicativo se for usado fora de AuthProvider.
+- Dentro do contexto, session pode ser undefined inicialmente, null sem sessão
+  ou um objeto com token e expiresAt quando há sessão.
+- O contexto ausente é diferente de session undefined durante a inicialização.
+- Substitui o antigo useSessao; componentes não acessam diretamente o armazenamento.
 
 Arquivo: src/modules/autenticacao/components/area-autenticada.tsx
 
 Componente: AreaAutenticada({ children })
+- Usa useAuth para obter session e encerrarSessao do contexto.
 - Obtém sessão, ferramentas de navegação e caminho da página atual.
 - Sem sessão disponível, mostra "Verificando sua sessão…".
 - Com sessão, mostra marca, menu Catálogo/Usuários, botão Sair, conteúdo e rodapé.
@@ -254,6 +271,7 @@ Callback do useEffect e sua limpeza:
 Arquivo: src/modules/autenticacao/components/login-form.tsx
 
 Componente: LoginForm()
+- Usa useAuth para obter iniciarSessao do contexto.
 - Mostra campos CPF e senha, mensagem de erro e link para cadastro.
 - Mantém error (mensagem) e busy (envio em andamento).
 - Desabilita o botão e mostra "Entrando…" durante o envio.
@@ -270,6 +288,7 @@ Função interna: submit(event) — assíncrona
 Arquivo: src/modules/autenticacao/hooks/use-consulta.ts
 
 Hook: useConsulta<T>(load)
+- Usa useAuth para obter session e encerrarSessao do contexto.
 - Recebe uma função load(token, signal) que retorna Promise<T>.
 - Obtém a sessão e mantém um contador de tentativas e o resultado da consulta.
 - Executa a consulta quando sessão, função load ou tentativa mudam.

@@ -4,6 +4,7 @@ import com.biblioteca.Biblioteca.Online.usuario.domain.Endereco;
 import com.biblioteca.Biblioteca.Online.usuario.domain.UsuarioEntity;
 import com.biblioteca.Biblioteca.Online.usuario.dto.UsuarioRequest;
 import com.biblioteca.Biblioteca.Online.usuario.dto.UsuarioResponse;
+import com.biblioteca.Biblioteca.Online.usuario.exception.UsuarioExistenteException;
 import com.biblioteca.Biblioteca.Online.usuario.mapper.EnderecoMapper;
 import com.biblioteca.Biblioteca.Online.usuario.mapper.UsuarioMapper;
 import com.biblioteca.Biblioteca.Online.usuario.repository.UsuarioRepository;
@@ -25,7 +26,7 @@ public class UsuarioService {
 
     public UsuarioResponse cadastrar(UsuarioRequest request) {
         if (usuarioRepository.existsByCpf(request.cpf())) {
-            throw new IllegalArgumentException("CPF ja cadastrado.");
+            throw new UsuarioExistenteException("CPF ja cadastrado.");
         }
 
         Endereco endereco = enderecoService.buscarPorCep(request.endereco().cep());

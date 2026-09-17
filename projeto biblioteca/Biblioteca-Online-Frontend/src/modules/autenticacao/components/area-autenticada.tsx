@@ -3,23 +3,26 @@
 import { useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { encerrarSessao } from "../session";
-import { useSessao } from "../hooks/use-sessao";
+import { useAuth } from "../hooks/use-auth";
 import { Marca, Aviso } from "@/shared/components/ui";
 
 export function AreaAutenticada({ children }: { children: ReactNode }) {
-  const session = useSessao();
+
+  const { session, encerrarSessao } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+
   useEffect(() => {
     if (session === null) router.replace("/login");
     if (!session) return;
+    
     const timer = window.setTimeout(
       encerrarSessao,
       Math.max(0, session.expiresAt - Date.now()),
     );
     return () => window.clearTimeout(timer);
-  }, [session, router]);
+  }, [session, router, encerrarSessao]);
+
   if (!session)
     return (
       <main className="container">

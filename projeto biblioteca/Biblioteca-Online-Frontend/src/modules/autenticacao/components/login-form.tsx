@@ -5,11 +5,14 @@ import { useRouter } from "next/navigation";
 import { Campo, Aviso } from "@/shared/components/ui";
 import { criarLogin } from "../dto/login";
 import { autenticar } from "../services/autenticacao-api";
-import { iniciarSessao } from "../session";
+import { useAuth } from "../hooks/use-auth";
+
 export function LoginForm() {
+  const { iniciarSessao } = useAuth();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const router = useRouter();
+  
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");

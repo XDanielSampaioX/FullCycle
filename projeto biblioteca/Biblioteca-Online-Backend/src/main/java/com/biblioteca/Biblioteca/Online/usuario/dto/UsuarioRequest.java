@@ -13,6 +13,10 @@ public record UsuarioRequest(
         @Pattern(regexp = "\\d{11}", message = "CPF deve conter 11 digitos.")
         String cpf,
 
+        @NotBlank(message = "Senha e obrigatoria.")
+        @Pattern(regexp = ".{8,}", message = "Senha deve conter pelo menos 8 caracteres.")
+        String senha,
+
         @Valid
         @NotNull(message = "Endereco e obrigatorio.")
         EnderecoRequest endereco

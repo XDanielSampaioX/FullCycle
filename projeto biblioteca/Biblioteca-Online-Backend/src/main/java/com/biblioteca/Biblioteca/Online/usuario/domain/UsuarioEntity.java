@@ -32,6 +32,9 @@ public class UsuarioEntity {
     @Column(nullable = false, unique = true, length = 14)
     private String cpf;
 
+    @Column(nullable = false)
+    private String senha;
+
     @Embedded
     private Endereco endereco;
 }

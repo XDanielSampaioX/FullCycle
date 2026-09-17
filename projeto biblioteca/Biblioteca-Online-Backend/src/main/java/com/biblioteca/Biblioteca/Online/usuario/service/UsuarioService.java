@@ -8,6 +8,7 @@ import com.biblioteca.Biblioteca.Online.usuario.mapper.EnderecoMapper;
 import com.biblioteca.Biblioteca.Online.usuario.mapper.UsuarioMapper;
 import com.biblioteca.Biblioteca.Online.usuario.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class UsuarioService {
     private final UsuarioMapper usuarioMapper;
     private final EnderecoMapper enderecoMapper;
     private final EnderecoService enderecoService;
+    private final PasswordEncoder passwordEncoder;
 
     public UsuarioResponse cadastrar(UsuarioRequest request) {
         if (usuarioRepository.existsByCpf(request.cpf())) {
@@ -30,6 +32,7 @@ public class UsuarioService {
         enderecoMapper.merge(endereco, request.endereco());
 
         UsuarioEntity usuario = usuarioMapper.toEntity(request, endereco);
+        usuario.setSenha(passwordEncoder.encode(request.senha()));
         UsuarioEntity usuarioSalvo = usuarioRepository.save(usuario);
 
         return usuarioMapper.toResponse(usuarioSalvo);

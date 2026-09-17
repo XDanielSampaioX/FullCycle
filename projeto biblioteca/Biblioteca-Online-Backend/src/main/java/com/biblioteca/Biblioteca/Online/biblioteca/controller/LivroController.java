@@ -2,19 +2,14 @@ package com.biblioteca.Biblioteca.Online.biblioteca.controller;
 
 import com.biblioteca.Biblioteca.Online.biblioteca.dto.GoogleBooksResponse;
 import com.biblioteca.Biblioteca.Online.biblioteca.service.GoogleBookService;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientResponseException;
 
 @Validated
@@ -26,21 +21,12 @@ public class LivroController {
     private final GoogleBookService googleBookService;
 
     @GetMapping
-    public GoogleBooksResponse buscar(
-            @RequestParam("termo")
-            @NotBlank(message = "Termo de busca e obrigatorio.")
-            String termo,
+    public GoogleBooksResponse buscar(@RequestParam("termo")
+                                      @NotBlank(message = "Termo de busca e obrigatorio.")
+                                      String termo,
+                                      @PageableDefault(size = 10) Pageable pageable) {
 
-            @RequestParam(name = "startIndex", defaultValue = "0")
-            @Min(value = 0, message = "StartIndex deve ser maior ou igual a 0.")
-            Integer startIndex,
-
-            @RequestParam(name = "maxResults", defaultValue = "10")
-            @Min(value = 1, message = "MaxResults deve ser maior ou igual a 1.")
-            @Max(value = 40, message = "MaxResults deve ser menor ou igual a 40.")
-            Integer maxResults
-    ) {
-        return googleBookService.buscarLivrosGratuitos(termo, startIndex, maxResults);
+        return googleBookService.buscarLivrosGratuitos(termo, pageable);
     }
 
     @GetMapping("/{volumeId}")
